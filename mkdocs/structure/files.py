@@ -69,15 +69,20 @@ class Files:
         """ Retrieve static files from Jinja environment and add to collection. """
         def filter(name):
             # '.*' filters dot files/dirs at root level whereas '*/.*' filters nested levels
-            patterns = ['.*', '*/.*', '*.py', '*.pyc', '*.html', '*readme*', 'mkdocs_theme.yml']
-            # Exclude translation files
-            patterns.append("locales/*")
+            patterns = [
+                '.*',
+                '*/.*',
+                '*.py',
+                '*.pyc',
+                '*.html',
+                '*readme*',
+                'mkdocs_theme.yml',
+                "locales/*",
+            ]
+
             patterns.extend(f'*{x}' for x in utils.markdown_extensions)
             patterns.extend(config['theme'].static_templates)
-            for pattern in patterns:
-                if fnmatch.fnmatch(name.lower(), pattern):
-                    return False
-            return True
+            return not any(fnmatch.fnmatch(name.lower(), pattern) for pattern in patterns)
         for path in env.list_templates(filter_func=filter):
             # Theme files do not override docs_dir files
             path = os.path.normpath(path)
@@ -157,7 +162,7 @@ class File:
             if not use_directory_urls or self.name == 'index':
                 # index.md or README.md => index.html
                 # foo.md => foo.html
-                return os.path.join(parent, self.name + '.html')
+                return os.path.join(parent, f'{self.name}.html')
             else:
                 # foo.md => foo/index.html
                 return os.path.join(parent, self.name, 'index.html')
@@ -168,10 +173,7 @@ class File:
         url = self.dest_path.replace(os.path.sep, '/')
         dirname, filename = os.path.split(url)
         if use_directory_urls and filename == 'index.html':
-            if dirname == '':
-                url = '.'
-            else:
-                url = dirname + '/'
+            url = '.' if dirname == '' else f'{dirname}/'
         return urlquote(url)
 
     def url_relative_to(self, other):
@@ -255,9 +257,7 @@ def _sort_files(filenames):
     """ Always sort `index` or `README` as first filename in list. """
 
     def key(f):
-        if os.path.splitext(f)[0] in ['index', 'README']:
-            return (0,)
-        return (1, f)
+        return (0, ) if os.path.splitext(f)[0] in ['index', 'README'] else (1, f)
 
     return sorted(filenames, key=key)
 

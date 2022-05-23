@@ -33,8 +33,7 @@ def _get_current_sha(repo_path):
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     stdout, _ = proc.communicate()
-    sha = stdout.decode('utf-8').strip()
-    return sha
+    return stdout.decode('utf-8').strip()
 
 
 def _get_remote_url(remote_name):

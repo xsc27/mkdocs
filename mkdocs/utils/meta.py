@@ -58,9 +58,7 @@ def get_data(doc):
     """
     data = {}
 
-    # First try YAML
-    m = YAML_RE.match(doc)
-    if m:
+    if m := YAML_RE.match(doc):
         try:
             data = yaml.load(m.group(1), SafeLoader)
             if isinstance(data, dict):
@@ -80,8 +78,7 @@ def get_data(doc):
 
         if line.strip() == '':
             break  # blank line - done
-        m1 = META_RE.match(line)
-        if m1:
+        if m1 := META_RE.match(line):
             key = m1.group('key').lower().strip()
             value = m1.group('value').strip()
             if key in data:
@@ -92,7 +89,7 @@ def get_data(doc):
             m2 = META_MORE_RE.match(line)
             if m2 and key:
                 # Add another line to existing key
-                data[key] += ' {}'.format(m2.group('value').strip())
+                data[key] += f" {m2.group('value').strip()}"
             else:
                 lines.insert(0, line)
                 break  # no meta data - done

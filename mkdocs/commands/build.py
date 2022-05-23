@@ -316,8 +316,7 @@ def build(config, live_server=False, dirty=False):
         # Run `post_build` plugin events.
         config['plugins'].run_event('post_build', config=config)
 
-        counts = warning_counter.get_counts()
-        if counts:
+        if counts := warning_counter.get_counts():
             msg = ', '.join([f'{v} {k.lower()}s' for k, v in counts])
             raise Abort(f'\nAborted with {msg} in strict mode!')
 
@@ -338,4 +337,4 @@ def build(config, live_server=False, dirty=False):
 def site_directory_contains_stale_files(site_directory):
     """ Check if the site directory contains stale files from a previous build. """
 
-    return True if os.path.exists(site_directory) and os.listdir(site_directory) else False
+    return bool(os.path.exists(site_directory) and os.listdir(site_directory))

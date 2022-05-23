@@ -11,16 +11,14 @@ class Locale(NamedTuple):
     territory: str = ''
 
     def __str__(self):
-        if self.territory:
-            return f'{self.language}_{self.territory}'
-        return self.language
+        return f'{self.language}_{self.territory}' if self.territory else self.language
 
     @classmethod
     def parse(cls, identifier, sep):
         if not isinstance(identifier, str):
             raise TypeError(f"Unexpected value for identifier: '{identifier}'")
         locale = cls(*identifier.split(sep, 1))
-        if not all(x in ascii_letters for x in locale.language):
+        if any(x not in ascii_letters for x in locale.language):
             raise ValueError(f"expected only letters, got '{locale.language}'")
         if len(locale.language) != 2:
             raise UnknownLocaleError(f"unknown locale '{locale.language}'")

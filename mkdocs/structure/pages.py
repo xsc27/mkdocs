@@ -55,7 +55,7 @@ class Page:
         return f"Page(title={title}, url='{url}')"
 
     def _indent_print(self, depth=0):
-        return '{}{}'.format('    ' * depth, repr(self))
+        return f"{'    ' * depth}{repr(self)}"
 
     def _get_active(self):
         """ Return active status of page. """
@@ -87,9 +87,7 @@ class Page:
 
     @property
     def ancestors(self):
-        if self.parent is None:
-            return []
-        return [self.parent] + self.parent.ancestors
+        return [] if self.parent is None else [self.parent] + self.parent.ancestors
 
     def _set_canonical_url(self, base):
         if base:

@@ -59,10 +59,10 @@ class extract_messages(babel.extract_messages, ThemeMixin):
             self.mapping_file = DEFAULT_MAPPING_FILE
         if not self.input_paths or not self.output_file:
             theme_dir = self.get_theme_dir()
-            if not self.input_paths:
-                self.input_paths = theme_dir
-            if not self.output_file:
-                self.output_file = f"{theme_dir}/{self.domain}.pot"
+        if not self.input_paths:
+            self.input_paths = theme_dir
+        if not self.output_file:
+            self.output_file = f"{theme_dir}/{self.domain}.pot"
         super().finalize_options()
 
 
@@ -78,10 +78,10 @@ class init_catalog(babel.init_catalog, ThemeMixin):
     def finalize_options(self):
         if not self.input_file or not self.output_dir:
             theme_dir = self.get_theme_dir()
-            if not self.input_file:
-                self.input_file = f"{theme_dir}/{self.domain}.pot"
-            if not self.output_dir:
-                self.output_dir = f"{theme_dir}/locales"
+        if not self.input_file:
+            self.input_file = f"{theme_dir}/{self.domain}.pot"
+        if not self.output_dir:
+            self.output_dir = f"{theme_dir}/locales"
         super().finalize_options()
 
 
@@ -97,8 +97,8 @@ class update_catalog(babel.update_catalog, ThemeMixin):
     def finalize_options(self):
         if not self.input_file or not self.output_dir:
             theme_dir = self.get_theme_dir()
-            if not self.input_file:
-                self.input_file = f"{theme_dir}/{self.domain}.pot"
-            if not self.output_dir:
-                self.output_dir = f"{theme_dir}/locales"
+        if not self.input_file:
+            self.input_file = f"{theme_dir}/{self.domain}.pot"
+        if not self.output_dir:
+            self.output_dir = f"{theme_dir}/locales"
         super().finalize_options()
