@@ -87,7 +87,10 @@ class SearchPlugin(BasePlugin):
         json_output_path = os.path.join(output_base_path, 'search_index.json')
         utils.write_file(search_index.encode('utf-8'), json_output_path)
 
-        if not ('search_index_only' in config['theme'] and config['theme']['search_index_only']):
+        if (
+            'search_index_only' not in config['theme']
+            or not config['theme']['search_index_only']
+        ):
             # Include language support files in output. Copy them directly
             # so that only the needed files are included.
             files = []
@@ -97,9 +100,9 @@ class SearchPlugin(BasePlugin):
                 files.append('lunr.multi.js')
             if ('ja' in self.config['lang'] or 'jp' in self.config['lang']):
                 files.append('tinyseg.js')
-            for lang in self.config['lang']:
-                if (lang != 'en'):
-                    files.append(f'lunr.{lang}.js')
+            files.extend(
+                f'lunr.{lang}.js' for lang in self.config['lang'] if (lang != 'en')
+            )
 
             for filename in files:
                 from_path = os.path.join(base_path, 'lunr-language', filename)

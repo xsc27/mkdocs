@@ -98,10 +98,7 @@ class PluginCollection(OrderedDict):
 
         pass_item = item is not None
         for method in self.events[name]:
-            if pass_item:
-                result = method(item, **kwargs)
-            else:
-                result = method(**kwargs)
+            result = method(item, **kwargs) if pass_item else method(**kwargs)
             # keep item if method returned `None`
             if result is not None:
                 item = result

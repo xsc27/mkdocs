@@ -117,14 +117,10 @@ class OptionallyRequired(BaseConfigOption):
 
         if value is None:
             if self.default is not None:
-                if hasattr(self.default, 'copy'):
-                    # ensure no mutable values are assigned
-                    value = self.default.copy()
-                else:
-                    value = self.default
+                value = self.default.copy() if hasattr(self.default, 'copy') else self.default
             elif not self.required:
                 return
-            elif self.required:
+            else:
                 raise ValidationError("Required configuration not provided.")
 
         return self.run_validation(value)
@@ -346,7 +342,7 @@ class RepoURL(URL):
 
         # derive edit_uri from repo_name if unset
         if config['repo_url'] is not None and edit_uri is None:
-            if repo_host == 'github.com' or repo_host == 'gitlab.com':
+            if repo_host in ['github.com', 'gitlab.com']:
                 edit_uri = 'edit/master/docs/'
             elif repo_host == 'bitbucket.org':
                 edit_uri = 'src/default/docs/'
@@ -459,18 +455,13 @@ class SiteDir(Dir):
         # and eventually make a deep nested mess.
         if (config['docs_dir'] + os.sep).startswith(config['site_dir'].rstrip(os.sep) + os.sep):
             raise ValidationError(
-                ("The 'docs_dir' should not be within the 'site_dir' as this "
-                 "can mean the source files are overwritten by the output or "
-                 "it will be deleted if --clean is passed to mkdocs build."
-                 "(site_dir: '{}', docs_dir: '{}')"
-                 ).format(config['site_dir'], config['docs_dir']))
+                f"The 'docs_dir' should not be within the 'site_dir' as this can mean the source files are overwritten by the output or it will be deleted if --clean is passed to mkdocs build.(site_dir: '{config['site_dir']}', docs_dir: '{config['docs_dir']}')"
+            )
+
         elif (config['site_dir'] + os.sep).startswith(config['docs_dir'].rstrip(os.sep) + os.sep):
             raise ValidationError(
-                ("The 'site_dir' should not be within the 'docs_dir' as this "
-                 "leads to the build directory being copied into itself and "
-                 "duplicate nested files in the 'site_dir'."
-                 "(site_dir: '{}', docs_dir: '{}')"
-                 ).format(config['site_dir'], config['docs_dir']))
+                f"The 'site_dir' should not be within the 'docs_dir' as this leads to the build directory being copied into itself and duplicate nested files in the 'site_dir'.(site_dir: '{config['site_dir']}', docs_dir: '{config['docs_dir']}')"
+            )
 
 
 class Theme(BaseConfigOption):
@@ -546,9 +537,7 @@ class Nav(OptionallyRequired):
             self.warnings.append(f"Expected nav to be a list, got {self._repr_item(value)}")
             for subitem in value.values():
                 self.run_validation(subitem, top=False)
-        elif isinstance(value, str) and not top:
-            pass
-        else:
+        elif not isinstance(value, str) or top:
             raise ValidationError(f"Expected nav to be a list, got {self._repr_item(value)}")
         return value
 
@@ -699,10 +688,8 @@ class Plugins(OptionallyRequired):
         plugin = Plugin()
         errors, warnings = plugin.load_config(config, self.config_file_path)
         self.warnings.extend(warnings)
-        errors_message = '\n'.join(
-            f"Plugin '{name}' value: '{x}'. Error: {y}"
-            for x, y in errors
-        )
-        if errors_message:
+        if errors_message := '\n'.join(
+            f"Plugin '{name}' value: '{x}'. Error: {y}" for x, y in errors
+        ):
             raise ValidationError(errors_message)
         return plugin

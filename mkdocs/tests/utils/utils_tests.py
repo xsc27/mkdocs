@@ -126,9 +126,11 @@ class UtilsTests(unittest.TestCase):
         for (url, other), expected_result in expected_results.items():
             # Leading slash intentionally ignored
             self.assertEqual(utils.get_relative_url(url, other), expected_result)
-            self.assertEqual(utils.get_relative_url('/' + url, other), expected_result)
-            self.assertEqual(utils.get_relative_url(url, '/' + other), expected_result)
-            self.assertEqual(utils.get_relative_url('/' + url, '/' + other), expected_result)
+            self.assertEqual(utils.get_relative_url(f'/{url}', other), expected_result)
+            self.assertEqual(utils.get_relative_url(url, f'/{other}'), expected_result)
+            self.assertEqual(
+                utils.get_relative_url(f'/{url}', f'/{other}'), expected_result
+            )
 
     def test_get_relative_url_empty(self):
         for url in ['', '.', '/.']:

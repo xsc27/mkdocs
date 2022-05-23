@@ -72,10 +72,7 @@ def modified_time(file_path):
     Return the modified time of the supplied file. If the file does not exists zero is returned.
     see build_pages for use.
     """
-    if os.path.exists(file_path):
-        return os.path.getmtime(file_path)
-    else:
-        return 0.0
+    return os.path.getmtime(file_path) if os.path.exists(file_path) else 0.0
 
 
 def get_build_timestamp():
@@ -177,7 +174,7 @@ def get_html_path(path):
     """
     path = os.path.splitext(path)[0]
     if os.path.basename(path) == 'index':
-        return path + '.html'
+        return f'{path}.html'
     return "/".join((path, 'index.html'))
 
 
@@ -244,7 +241,7 @@ def is_error_template(path):
 @functools.lru_cache(maxsize=None)
 def _norm_parts(path):
     if not path.startswith('/'):
-        path = '/' + path
+        path = f'/{path}'
     path = posixpath.normpath(path)[1:]
     return path.split('/') if path else []
 
@@ -274,7 +271,7 @@ def get_relative_url(url, other):
 
     rel_parts = ['..'] * (len(other_parts) - common) + dest_parts[common:]
     relurl = '/'.join(rel_parts) or '.'
-    return relurl + '/' if url.endswith('/') else relurl
+    return f'{relurl}/' if url.endswith('/') else relurl
 
 
 def normalize_url(path, page=None, base=''):

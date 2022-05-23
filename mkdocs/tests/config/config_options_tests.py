@@ -696,9 +696,10 @@ class ThemeTest(unittest.TestCase):
         config = {
             'theme': {
                 'name': None,
-                'custom_dir': abs_base_path + '/inexisting_custom_dir',
+                'custom_dir': f'{abs_base_path}/inexisting_custom_dir',
             }
         }
+
         option = config_options.Theme()
         with self.assertRaises(config_options.ValidationError):
             option.post_validation(config, 'theme')

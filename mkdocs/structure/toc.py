@@ -42,7 +42,7 @@ class AnchorLink:
 
     @property
     def url(self):
-        return '#' + self.id
+        return f'#{self.id}'
 
     def __str__(self):
         return self.indent_print()

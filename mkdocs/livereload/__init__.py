@@ -279,7 +279,7 @@ class LiveReloadServer(socketserver.ThreadingMixIn, wsgiref.simple_server.WSGISe
     def _log_poll_request(cls, url, request_id):
         log.info(f"Browser connected: {url}")
 
-    def _guess_type(cls, path):
+    def _guess_type(self, path):
         # MkDocs only ensures a few common types (as seen in livereload_tests.py::test_mime_types).
         # Other uncommon types will not be accepted.
         if path.endswith((".js", ".JS")):

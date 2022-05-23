@@ -49,16 +49,13 @@ class Theme:
 
         # Handle remaining user configs. Override theme configs (if set)
         self.static_templates.update(user_config.pop('static_templates', []))
-        self._vars.update(user_config)
+        self._vars |= user_config
 
         # Validate locale and convert to Locale object
         self._vars['locale'] = localization.parse_locale(self._vars['locale'])
 
     def __repr__(self):
-        return "{}(name='{}', dirs={}, static_templates={}, {})".format(
-            self.__class__.__name__, self.name, self.dirs, list(self.static_templates),
-            ', '.join(f'{k}={v!r}' for k, v in self._vars.items())
-        )
+        return f"{self.__class__.__name__}(name='{self.name}', dirs={self.dirs}, static_templates={list(self.static_templates)}, {', '.join((f'{k}={v!r}' for k, v in self._vars.items()))})"
 
     def __getitem__(self, key):
         return self._vars[key]
@@ -93,8 +90,7 @@ class Theme:
 
         log.debug(f"Loaded theme configuration for '{name}' from '{file_path}': {theme_config}")
 
-        parent_theme = theme_config.pop('extends', None)
-        if parent_theme:
+        if parent_theme := theme_config.pop('extends', None):
             themes = utils.get_theme_names()
             if parent_theme not in themes:
                 raise ValidationError(

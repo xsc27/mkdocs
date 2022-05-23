@@ -12,11 +12,7 @@ class Navigation:
         self.items = items  # Nested List with full navigation of Sections, Pages, and Links.
         self.pages = pages  # Flat List of subset of Pages in nav, in order.
 
-        self.homepage = None
-        for page in pages:
-            if page.is_homepage:
-                self.homepage = page
-                break
+        self.homepage = next((page for page in pages if page.is_homepage), None)
 
     def __repr__(self):
         return '\n'.join([item._indent_print() for item in self])
@@ -57,14 +53,11 @@ class Section:
 
     @property
     def ancestors(self):
-        if self.parent is None:
-            return []
-        return [self.parent] + self.parent.ancestors
+        return [] if self.parent is None else [self.parent] + self.parent.ancestors
 
     def _indent_print(self, depth=0):
-        ret = ['{}{}'.format('    ' * depth, repr(self))]
-        for item in self.children:
-            ret.append(item._indent_print(depth + 1))
+        ret = [f"{'    ' * depth}{repr(self)}"]
+        ret.extend(item._indent_print(depth + 1) for item in self.children)
         return '\n'.join(ret)
 
 
@@ -87,12 +80,10 @@ class Link:
 
     @property
     def ancestors(self):
-        if self.parent is None:
-            return []
-        return [self.parent] + self.parent.ancestors
+        return [] if self.parent is None else [self.parent] + self.parent.ancestors
 
     def _indent_print(self, depth=0):
-        return '{}{}'.format('    ' * depth, repr(self))
+        return f"{'    ' * depth}{repr(self)}"
 
 
 def get_navigation(files, config):
@@ -109,8 +100,9 @@ def get_navigation(files, config):
     _add_previous_and_next_links(pages)
     _add_parent_links(items)
 
-    missing_from_config = [file for file in files.documentation_pages() if file.page is None]
-    if missing_from_config:
+    if missing_from_config := [
+        file for file in files.documentation_pages() if file.page is None
+    ]:
         log.info(
             'The following pages exist in the docs directory, but are not '
             'included in the "nav" configuration:\n  - {}'.format(
@@ -159,8 +151,7 @@ def _data_to_navigation(data, files, config):
             for item in data
         ]
     title, path = data if isinstance(data, tuple) else (None, data)
-    file = files.get_file_from_path(path)
-    if file:
+    if file := files.get_file_from_path(path):
         return Page(title, file, config)
     return Link(title, path)
 

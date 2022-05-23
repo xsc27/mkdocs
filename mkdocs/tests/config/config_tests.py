@@ -73,12 +73,9 @@ class ConfigTests(unittest.TestCase):
         with TemporaryDirectory() as temp_path:
             os.mkdir(os.path.join(temp_path, 'docs'))
             config_path = os.path.join(temp_path, 'mkdocs.yml')
-            config_file = open(config_path, 'w')
-
-            config_file.write(file_contents)
-            config_file.flush()
-            config_file.close()
-
+            with open(config_path, 'w') as config_file:
+                config_file.write(file_contents)
+                config_file.flush()
             result = config.load_config(config_file=config_file.name)
             self.assertEqual(result['site_name'], expected_result['site_name'])
             self.assertEqual(result['nav'], expected_result['nav'])
@@ -253,7 +250,7 @@ class ConfigTests(unittest.TestCase):
         for test_config in test_configs:
 
             patch = conf.copy()
-            patch.update(test_config)
+            patch |= test_config
 
             # Same as the default schema, but don't verify the docs_dir exists.
             c = config.Config(schema=(

@@ -66,10 +66,10 @@ class Config(UserDict):
             except ValidationError as e:
                 failed.append((key, e))
 
-        for key in (set(self.keys()) - self._schema_keys):
-            warnings.append((
-                key, f"Unrecognised configuration name: {key}"
-            ))
+        warnings.extend(
+            (key, f"Unrecognised configuration name: {key}")
+            for key in (set(self.keys()) - self._schema_keys)
+        )
 
         return failed, warnings
 

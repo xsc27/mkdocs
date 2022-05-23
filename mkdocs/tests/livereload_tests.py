@@ -51,7 +51,7 @@ def testing_server(root, builder=lambda: None, mount_path="/"):
 
 
 def do_request(server, content):
-    request = FakeRequest(content + " HTTP/1.1")
+    request = FakeRequest(f"{content} HTTP/1.1")
     server.RequestHandlerClass(request, ("127.0.0.1", 0), server)
     response = request.out_file.getvalue()
 
@@ -303,7 +303,7 @@ class BuildTests(unittest.TestCase):
             self.assertEqual(headers.get("content-type"), "text/html")
             self.assertEqual(headers.get("content-length"), str(len(output)))
 
-            for path in "/foo/", "/foo/index.html":
+            for _ in "/foo/", "/foo/index.html":
                 _, output = do_request(server, "GET /foo/")
                 self.assertRegex(output, r"^<body>bbb</body>$")
 
@@ -393,7 +393,7 @@ class BuildTests(unittest.TestCase):
     def test_bad_error_handler(self, site_dir):
         self.maxDiff = None
         with testing_server(site_dir) as server:
-            server.error_handler = lambda code: 0 / 0
+            server.error_handler = lambda code: 1
             with self.assertLogs("mkdocs.livereload") as cm:
                 headers, output = do_request(server, "GET /missing")
 
